@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MySearch</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="title-box">
+            <h1>MySearch</h1>
+        </div>
+    </header>
+
+    <main>
+        <div class="controls">
+            <select id="yearSelect"></select>
+            <select id="seasonSelect">
+                <option value="all">Todas as temporadas</option>
+                <option value="winter">Winter</option>
+                <option value="spring">Spring</option>
+                <option value="summer">Summer</option>
+                <option value="fall">Fall</option>
+            </select>
+            <button id="loadBtn">Pesquisar</button>
+        </div>
+
+        <div id="animeList" class="anime-list"></div>
+        <div id="loader" class="loader">Carregando...</div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
