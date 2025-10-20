@@ -2,15 +2,47 @@
 const animeList = document.getElementById('animeList');
 const filterSelect = document.getElementById('filterSelect');
 
-// ==== CARREGAR FAVORITOS ====
+// ==== CHAVES DE LOCALSTORAGE ====
+const FAVORITES_KEY = 'mysearch_favorites';
+
+// ==== PEGAR FAVORITOS ====
 function getFavorites() {
-  const data = localStorage.getItem('mysearch_favorites');
+  const data = localStorage.getItem(FAVORITES_KEY);
   return data ? JSON.parse(data) : [];
 }
 
 // ==== SALVAR FAVORITOS ====
 function saveFavorites(favs) {
-  localStorage.setItem('mysearch_favorites', JSON.stringify(favs));
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs));
+}
+
+// ==== ATUALIZA OU ADICIONA FAVORITO ====
+function updateFavoriteStorage(anime) {
+  // Salva individualmente (para manter compatibilidade com outras abas)
+  localStorage.setItem(`anime_${anime.mal_id}`, JSON.stringify(anime));
+
+  // Atualiza lista de favoritos
+  let favs = getFavorites();
+  const index = favs.findIndex(f => f.mal_id === anime.mal_id);
+  if (index !== -1) {
+    favs[index] = anime;
+  } else {
+    favs.push(anime);
+  }
+  saveFavorites(favs);
+}
+
+// ==== REMOVER FAVORITO ====
+function removeFavorite(id) {
+  // Remove da lista de favoritos
+  let favs = getFavorites().filter(f => f.mal_id !== id);
+  saveFavorites(favs);
+
+  // Remove individual
+  localStorage.removeItem(`anime_${id}`);
+
+  // Atualiza a lista exibida
+  displayFavorites(filterSelect.value);
 }
 
 // ==== EXIBIR FAVORITOS ====
@@ -59,12 +91,12 @@ function displayFavorites(filter = 'all') {
     // ====== EVENTOS ======
     card.querySelector('.status-select').addEventListener('change', (e) => {
       anime.status = e.target.value;
-      updateFavorite(anime);
+      updateFavoriteStorage(anime);
     });
 
     card.querySelector('.progress-input').addEventListener('input', (e) => {
       anime.progress = parseInt(e.target.value) || 0;
-      updateFavorite(anime);
+      updateFavoriteStorage(anime);
     });
 
     card.querySelector('.remove-btn').addEventListener('click', () => {
@@ -75,26 +107,13 @@ function displayFavorites(filter = 'all') {
   });
 }
 
-// ==== ATUALIZAR FAVORITO ====
-function updateFavorite(updatedAnime) {
-  const favorites = getFavorites();
-  const index = favorites.findIndex(f => f.mal_id === updatedAnime.mal_id);
-  if (index !== -1) {
-    favorites[index] = updatedAnime;
-    saveFavorites(favorites);
-  }
-}
-
-// ==== REMOVER FAVORITO ====
-function removeFavorite(id) {
-  let favorites = getFavorites();
-  favorites = favorites.filter(f => f.mal_id !== id);
-  saveFavorites(favorites);
-  displayFavorites(filterSelect.value);
-}
-
 // ==== FILTRO DE STATUS ====
 filterSelect.addEventListener('change', () => {
+  displayFavorites(filterSelect.value);
+});
+
+// ==== ATUALIZA DYNAMICAMENTE SE LOCALSTORAGE MUDAR (OUTRA ABA) ====
+window.addEventListener('storage', () => {
   displayFavorites(filterSelect.value);
 });
 
