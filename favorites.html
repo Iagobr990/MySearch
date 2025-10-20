@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favoritos - MySearch</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>⭐ Favoritos e Listas</h1>
+    </header>
+
+    <main id="listsContainer"></main>
+
+    <script>
+        const categories = {
+            favorite: "⭐ Favoritos",
+            watching: "🎬 Assistindo",
+            completed: "✅ Concluídos",
+            plan: "⏳ Planejando"
+        };
+
+        const container = document.getElementById("listsContainer");
+
+        Object.keys(categories).forEach(categoryKey => {
+            const section = document.createElement("section");
+            section.classList.add("list-section");
+            section.innerHTML = `<h2>${categories[categoryKey]}</h2>`;
+
+            const grid = document.createElement("div");
+            grid.classList.add("list-container");
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (!key.startsWith('anime_')) continue;
+
+                const status = JSON.parse(localStorage.getItem(key));
+                if (!status[categoryKey]) continue;
+
+                const animeData = JSON.parse(localStorage.getItem(`animeData_${status.mal_id || key.split('_')[1]}`));
+                if (!animeData) continue;
+
+                const card = document.createElement("div");
+                card.classList.add("anime-card");
+                card.innerHTML = `
+                    <img src="${animeData.image}" alt="${animeData.title}">
+                    <h3>${animeData.title}</h3>
+                    <p>Episódios: ${animeData.episodes}</p>
+                    <p class="synopse">${animeData.synopsis}</p>
+                `;
+                card.addEventListener("click", () => {
+                    card.querySelector(".synopse").classList.toggle("show");
+                });
+                grid.appendChild(card);
+            }
+
+            if (grid.children.length === 0) {
+                section.innerHTML += `<p style="color:#aaa;">Nenhum anime aqui ainda.</p>`;
+            } else {
+                section.appendChild(grid);
+            }
+
+            container.appendChild(section);
+        });
+    </script>
+</body>
+</html>
